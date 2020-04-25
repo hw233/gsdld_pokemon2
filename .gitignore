@@ -1,0 +1,6 @@
+*.pyc
+*.log
+config/*.py
+code/log
+data/*
+*.zip

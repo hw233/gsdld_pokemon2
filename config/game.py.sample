@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+import os, sys
+from os.path import join, abspath, dirname
+
+app='game'
+serverNo = '030013' #前2位渠道编号 后四位服务器编号
+
+debug = 1  # 1, 2(内部调试)
+
+#编码
+sys_setting = sys.modules['SysSetting']
+if sys.version[0] == "2":
+    sys_encoding = sys_setting.sys_encoding
+
+#路径设置
+root_path = sys_setting.root_path
+res_base_dir = join(root_path, 'res')
+locale_code = 'zh_CN'
+#配置文件所在目录,linux系统下用于存放配置、sock等文件
+cfg_path = dirname(__file__)
+#cmd
+py_params = ' subgame %(name)s %(pid)s "%(addr)s"'
+executable = sys_setting.executable
+sub_game_cmd = executable + py_params
+
+#login_url
+login_url = "http://129.204.37.150:7200/user/check"
+
+#log_url
+log_url = ""
+
+#subgame address
+base_port = 18001 #游戏服起始端口
+max_subgame = 50 #最大逻辑子进程数
+max_players = 20000 #单服最大在线数
+logic_players = 400 #单逻辑进程达到这个数后开始新逻辑进程
+logic_pool = 1 #逻辑进程保留数
+
+#ip
+# db_ip = '111.230.206.39'
+db_ip = '192.168.1.21'
+local_ip = '192.168.1.147'
+inet_ip = local_ip #外网ip
+room_addr = ('192.168.1.147', 6666)
+diaoyu_addr = ('192.168.1.147', 6666)
+wakuang_addr = ('192.168.1.147', 6666)
+txdy_addr = ('192.168.1.147', 6666)
+day_addr = ('192.168.1.147', 6666)
+boss_addr = ('192.168.1.147', 6666)
+gongcheng_addr = ('192.168.1.147', 6666)
+cross_rank_addr = ('192.168.1.147', 6666)
+level_contest_addr = ('192.168.1.147', 6666)
+group_limit_pk_addr = ('192.168.1.147', 6666)
+# p3cross = 1
+
+main_addr = (local_ip, base_port)
+player_addr = (local_ip, base_port + 1)
+web_addr = (inet_ip, base_port + 2)
+inet_addr = (inet_ip, base_port)
+#逻辑进程开放给玩家的端口
+start = 3
+free_ports = [port for port in range(base_port + start, base_port + start + max_subgame)]
+free_addrs = []
+for port in free_ports:
+    free_addrs.append((local_ip, port))
+
+#gm
+GM_KEY = "Gmxxx123~!@"
+gm_users = {
+    "admin":"123456"
+}
+
+#store
+svr_name = 'pkm2_%s'%serverNo
+db_pre = 'mongodb://%s:27017' % db_ip
+db_engine = '%s/%s' % (db_pre, svr_name)
+db_params = {}  # dict(max_pool_size=30,)
+
+
+#主服进程配置
+frames = [
+    {'name': 'app_common', 'funcs': ['game.init_app_common',], 'addr':player_addr},
+    {'name': 'app_logic', 'mode': 'multi', 'funcs': ['game.init_app_logic',],
+        'kw': {'check': 'game.mgr.logicgame.logic_capacity_check', }},
+]
+
